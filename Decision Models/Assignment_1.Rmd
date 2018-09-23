@@ -1,0 +1,121 @@
+---
+title: 'Asignment 1 : Climate Change'
+author: 'Brinati Davide, matricola: 771458'
+date: "21 marzo 2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Il dataset oggetto della seguente analisi contiene informazioni riguardanti il clima, a partire dal Maggio 1983, fino a Dicembre 2008. L'obiettivo di questo studio consiste nell'elaborare un modello di regressione lineare, il quale dovrà cercare di spiegare il più possibile la variabile dipendente **Temp**. Le variabili indipendenti in nostro possesso e che useremo sono: **CFC.11**, **CFC:12**, **CO2**, **CH4**, **Aerosols**, **TSI** e **MEI**; le variabili **Year** e **Month** non verranno prese in considerazione.
+
+## Divisione del dataset in training e test
+
+Procederemo ora con il caricamento del dataset.
+
+```{r}
+df <- read.csv('D:/uni/DECISION MODELS/Asignment1/Asignment1/Dataset/ClimateChange.csv')
+head(df)
+summary(df)
+```
+
+A questo punto il dataset verrà diviso in training, contenente i dati fino al Dicembre 2006, e test, con i dati da Gennaio 2007 fino a Dicembre 2008.
+
+```{r}
+train <- subset(df, Year < 2007)
+test <- subset(df, Year >= 2007)
+```
+
+## Costruire la regressione lineare
+
+Per costruire il modello di regressione lineare useremo tutte le variabili indipendenti (ad esclusione di **Year** e **Month**) e il training.
+
+```{r}
+TrainReg = lm(formula = Temp ~ MEI + CO2 + CH4 + N2O +CFC.11 + CFC.12 + TSI + Aerosols, data = train)
+summary(TrainReg)
+```
+
+Il modello ha fornito un'equazione di regressione lineare con i seguenti coefficienti:
+
+```{r}
+TrainReg$coefficients
+```
+
+Osservando i coefficienti pare che la variabile indipendente **CH4** non sia statisticamente significante (alto valore del p-value e piccolo coefficiente). Il valore di R^2 si attesta sullo 0.7509, ciò significa che il nostro modello è in grado di spiegare il 75,09% della variabilità dei dati.
+Possiamo inoltre notare una situazione alquanto paradossale: **N2O** e **CFC.11** sono dei gas serra, per cui un eventuale loro aumento dovrebbe portare, a rigor di logica, a un aumento conseguente della variabile dipendente **Temp**. Osservando però i coefficienti di tali variabili si può notare che essi sono negativi (rispettivamente -1.652800e-02 e -6.630489e-03).
+La spiegazione più semplice a questa contraddizione è che molto probabilmente le due variabili **N2O** e **CFC.11** abbiano una forte correlazione o fra di loro o con le altre variabili indipendenti. Andremo quindi a verificare queste ipotesi e a tal fine viene fornita una rappresentazione della collinearità fra le variabili:
+
+```{r}
+pairs(df)
+```
+
+Osservando la matrice di collinearità si può già notare che la variabile **N2O** risulta correlata con **CH4**, **CO2** e **CFC.12**. Calcoliamo quindi le relative correlazioni:
+
+```{r}
+cor(df$N2O, df$CH4)
+cor(df$N2O, df$CO2)
+cor(df$N2O, df$CFC.12)
+```
+
+Risulta evidente che la correlazione fra **N2O** e le altre variabili esplicative sopracitate sia molto forte (> 0.7).
+Concentriamoci ora sulla variabile **CFC.11**, osservando nuovamente la matrice pare tutt'altro che trascurabile la correlazione con le variabili **CH4** e **CFC.12**, osserviamo i valori delle relative correlazioni:
+
+```{r}
+cor(df$CFC.11, df$CH4)
+cor(df$CFC.11, df$CFC.12)
+```
+
+La variabile **CFC.11** risulta fortemente correlata con le varibili **CH4** e **CFC.12**.
+Risulta quindi spiegata la precedente contraddizione: la correlazioni fra le variabili esplicative non ci hanno portato al miglior modello possibile.
+
+##Miglioramento del modello di regressione lineare
+
+Al fine di migliorare il modello di regressione lineare diminuiremo il numero delle variabili indipendenti che verranno prese in considerazione. Alla luce anche di quanto detto nel paragrafo precedente tali variabili saranno: **MEI**, **TSI**, **Aerosols** e **N2O**. Avremo quindi:
+
+```{r}
+TrainReg2 = lm(formula = Temp ~ MEI + TSI + Aerosols + N2O, data = train)
+summary(TrainReg2)
+```
+
+Vengono riportati di seguito anche i valori dei coefficienti:
+
+```{r}
+TrainReg2$coefficients
+```
+
+Possiamo subito notare che il coefficiente della variabile **N2O** risulta essere positivo in questo caso, a differenza di quello precedente; non vi è nessuna ambiguità ora: un aumento di questo gas serra porta a un aumento della variabile dipendente **Temp**.
+Il valore di R^2 risulta essere uguale a 0.7261, minore rispetto a quello del modello precedente (0.7509). Ciò è ragionevole, dato che abbiamo ridotto il numero di variabili indipendenti per migliorare il modello. Di conseguenza la retta di regressione fornita come output spiegherà meno la variabilità dei dati.
+Nonostante ciò risulta preferibile il secondo modello: la diminuzione del valore di R^2 risulta marginale e il valore del coefficiente di **N2O** non si scontra più con l'opinione scientifica.
+Di seguito vengono presentate diverse rappresentazioni grafiche del secondo modello di regressione:
+
+```{r pressure, echo=FALSE}
+plot(TrainReg2)
+```
+
+##Applicazione del secondo modello sul test
+
+A questo punto è arrivato il momento di applicare sul test il secondo modello di regressione lineare, usato precedentemente sul training:
+
+```{r}
+TempPredict = predict(TrainReg2, newdata = test)
+str(TempPredict)
+```
+
+Viene ora eseguito il calcolo del coefficiente di correlazione R^2:
+
+```{r}
+SSE = sum((test$Temp - TempPredict)^2) #residui
+SST = sum((test$Temp - mean(df$Temp))^2)
+Rquadro = 1 - (SSE/SST)
+Rquadro
+```
+
+Il coefficiente di correlazione del test risulta essere molto basso, ciò significa che il modello di regressione lineare che abbiamo sviluppato, se applicato sul test, quindi su dati che non ha mai visto, perde molta della sua capacità di spiegare la variabilità dei dati.
+In conclusione, possiamo affermare che il modello prodotto non è ottimale per stimare il valore della variabile **Temp** nel test, probabilmente perchè l'insieme delle variabili indipendenti scelte non risulta ancora ottimale per prevedere la variabile dipendente.
