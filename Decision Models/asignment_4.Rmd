@@ -1,0 +1,479 @@
+---
+title: 'Asignment 4: A Nuts Problem'
+author: "Brinati Davide, Matricola: 771458"
+date: "02-05-2018"
+output: html_document
+---
+
+
+```{r r_setup, include = FALSE}
+## initial settings
+knitr::opts_chunk$set(
+  comment = NA,
+  echo = TRUE,
+  error = TRUE,
+  cache = FALSE,
+  message = FALSE,
+  dpi = 200,
+  warning = FALSE
+)
+
+## width to use when printing tables etc.
+options(
+  width = 250,
+  scipen = 100,
+  max.print = 5000,
+  stringsAsFactors = FALSE
+)
+```
+
+
+## Introduction
+The **Molokai Nut Company (MNC)** makes four different products from *macadamia nuts* grown in the Hawaiian Islands:
+
+- *chocolate-coated whole nuts* (**Whole**), 
+- *chocolate-coated nut clusters* (**Cluster**), 
+- *chocolate-coated nut crunch bars* (**Crunch**), and 
+- *plain roasted nuts* (**Roasted**). 
+
+The company is barely able to keep up with the increasing demand for these products. 
+However, increasing raw material prices and foreign competition are forcing MNC to watch its margins to ensure it is operating in the most efficient manner possible. 
+
+## Marketing Demands
+
+To meet marketing demands for the coming week, MNC needs to produce 
+
+- at least 1,000 pounds of the Whole product, 
+- between 400 and 500 pounds of the Cluster product, 
+- no more than 150 pounds of the Crunch product, and 
+- no more than 200 pounds of Roasted product.
+
+
+## Production Requirements
+
+Each pound of the Whole, Cluster, Crunch, and Roasted product contains, respectively,
+60%, 40%, 20%, and 100% macadamia nuts with the remaining weight made up of chocolate coating. 
+
+The company has 1100 pounds of nuts and 800 pounds of chocolate available for use in the next week. 
+
+The various products are made using four different machines that hull the nuts, roast the nuts, coat the nuts in chocolate (if needed), and package the products. 
+
+The following table summarizes the time required by each product on each machine. Each machine has 60 hours of time available in the coming week.
+
+<center>
+![Minutes Required per Pound](D:/uni/DECISION MODELS/Assignment/Assignment4/figs/Times.png){width=60%}
+
+</center>
+
+
+## Financial Summary
+
+The controller recently presented management with the following financial summary
+of MNCâ€™s average weekly operations over the past quarter. 
+From this report, the controller is arguing that the company should cease producing its Cluster and Crunch
+products.
+
+
+<center>
+![Financial Summary](D:/uni/DECISION MODELS/Assignment/Assignment4/figs/Costs.png){width=80%}
+
+</center>
+
+## Questions
+
+a. Do you agree with the controller recommendation? Why or why not? 
+
+No. Nel report ci sono diversi errori concettuali: i costi fissi vengono divisi e imputati ad ogni singolo prodotto, invece che essere messi nel bilancio come componente di costo da sottrarre direttamente dal fatturato. Così facendo i costi fissi vengono trattati come costi variabili.
+Analizziamo come cambia il report escludendo i costi fissi dal profitto per ogni unità.
+Calcoliamo i costi fissi per unità:
+
+```{r}
+costi_fissi_totali <- 1250 + 1050
+costi_fissi_x_unita <- costi_fissi_totali / 1890
+costi_fissi_x_unita
+```
+
+Costi fissi per il prodotto Whole:
+
+```{r}
+costi_fissi_whole <- costi_fissi_x_unita *1040
+costi_fissi_whole
+```
+
+costi fissi per il prodotto cluster:
+
+```{r}
+costi_fissi_cluster <- costi_fissi_x_unita * 500
+costi_fissi_cluster
+```
+
+costi fissi per il prodotto crunch
+```{r}
+costi_fissi_crunch <- costi_fissi_x_unita * 150 
+costi_fissi_crunch
+```
+
+costi fissi per il prodotto roasted:
+
+```{r}
+costi_fissi_roasted <- costi_fissi_x_unita * 200
+costi_fissi_roasted
+```
+
+I risultati ottenuti coincidono con quelli presenti nel report: sommando le due componenti di costo relative agli *Allocated Fixed Costs* si ottengono gli stessi risultati, per ogni prodotto.
+Ricalcoliamo quindi i profitti netti per ogni unità, senza addebitare i costi fissi in questo momento. 
+Profitto netto per unità per prodotto whole:
+
+```{r}
+prof_net_whole_x_unita = (5304/1040) - (1331/1040 + 1092/1040 + 333/1040 + 540 /1040)
+prof_net_whole_x_unita
+```
+
+profitto netto per unità, prodotto cluster:
+
+```{r}
+prof_net_cluster_x_unita = 1800/500 - (560/500 + 400/500 + 140/500 + 180/500)
+prof_net_cluster_x_unita
+```
+
+profitto netto per unità, prodotto crunch:
+
+```{r}
+prof_net_crunch_x_unita = 510/150 - (144/150 + 96/150 + 36/150 + 62/150)
+prof_net_crunch_x_unita
+```
+
+profitto netto per unità, prodotto roasted:
+
+```{r}
+prof_net_roasted_x_unita = 925/200 - (320/200 + 130/200 + 90/200 + 120/200)
+prof_net_roasted_x_unita
+```
+
+Si noti che i profitti netti per unità dei prodotti crunch e cluster non risultano più essere negativi.
+
+b. Formulate an LP model for this problem.  
+
+L'obiettivo di questa analisi sarà quello di stabilire le quantità ottimali dei quattro prodotti. La variabile che identificherà la quantità prodotta di *Whole* sarà **X1**, per il prodotto *Cluster* sarà **X2**, per *Crunch* **X3** e infine per *Roasted* **X4**. Dati i profitti netti per unità, precedentemente calcolati, possiamo scrivere la funzione obiettivo:
+
+$$MAX(P) = 1.930769X1 + 1.04X2 + 1.146667X3 + 1.325X4$$
+
+Sotto i seguenti vincoli:
+
+
+$X1 >= 1000$
+
+$400 <= X2 <= 500$
+
+$X3 <= 150$
+
+$X4 <= 200$
+
+
+$0.6X1 + 0.4X2 + 0.2X3 + X4 <= 1100$
+
+$0.4X1 + 0.6X2 + 0.8X3 <= 800$
+
+
+$X1 + X2 + X3 + X4 <= 3600$
+
+$2X1 + 1.5X2 + 1X3 + 1.75X4 <= 3600$
+
+$X1 + 0.7X2 + 0.2X3 <= 3600$
+
+$2.5X1 + 1.6X2 + 1.25X3 + X4 <= 3600$
+
+
+I primi quattro vincoli sono dettati dalla domanda di vendita, i due centrali dalle quantità di noci macadamia e cioccolato necessarie per ogni prodotto, e infine gli ultimi quattro vincoli esprimono il tempo di lavorazione del prodotto, richiesto dalle diverse macchine.
+
+c. Create a executable model in R for this problem and solve it. 
+
+```{r}
+library(lpSolve)
+library(lpSolveAPI)
+```
+
+Cominciamo con l'inizializzazione della programmazione lineare. I vincoli conviene aggiungengerli successivamente, mentre la variabili da ottimizzare sono quattro:
+
+```{r}
+model = make.lp(0,4)
+```
+
+Impostiamo il modello sulla massimizzazione della funzione obiettivo, e inseriamo i suoi coefficienti:
+
+```{r}
+lp.control(model, sense="max")
+set.objfn(model, obj = c(1.930769, 1.04, 1.146667, 1.325))
+```
+
+Definiamo ora i vincoli:
+
+```{r}
+row.add.mode(model, "on")
+
+add.constraint(model,
+               xt= c(0.6, 0.4, 0.2, 1),
+               type = "<=", rhs = 1100,
+               indices = c(1:4))
+add.constraint(model,
+               xt= c(0.4, 0.6, 0.8),
+               type = "<=", rhs = 800,
+               indices = c(1:3))
+add.constraint(model,
+               xt= c(1, 1, 1, 1),
+               type = "<=", rhs = 3600,
+               indices = c(1:4))
+add.constraint(model,
+               xt= c(2, 1.5, 1, 1.75),
+               type = "<=", rhs = 3600,
+               indices = c(1:4))
+add.constraint(model,
+               xt= c(1, 0.7, 0.2),
+               type = "<=", rhs = 3600,
+               indices = c(1:3))
+add.constraint(model,
+               xt= c(2.5, 1.6, 1.25, 1),
+               type = "<=", rhs = 3600,
+               indices = c(1:4))
+
+row.add.mode(model, "off")
+```
+
+Definiamo anche i limiti di produzione, dovuti dalla domanda di mercato:
+
+```{r}
+set.bounds(model, lower = c(1000, 400, 0, 0), upper = c(Inf, 500, 150, 200))
+```
+
+```{r}
+model
+```
+
+```{r}
+solve(model)
+```
+
+d. What is the optimal solution?  
+
+Estraiamo i valori di ciascuna variabile, nel punto di ottimo:
+
+```{r}
+get.variables(model)
+```
+
+Per massimizzare il profitto **MNC** dovrà produrre 1029 libbre del prodotto *Whole*, 400 libbre di *Cluster*, 150 di *Crunch* e 200 di *Roasted*. Il profitto al netto dei costi fissi risulterà pertanto pari a:
+
+```{r}
+income = get.objective(model) - costi_fissi_totali
+income
+```
+
+e. Perform the sensitivity analysis for this solution and answer the following questions.  
+
+```{r}
+require(dplyr)
+require(tidyr)
+lp.model <- model
+```
+
+```{r}
+printSensitivityRHS <- function(model){
+
+  options(scipen=999)
+  arg.rhs =get.sensitivity.rhs(model)
+  numRows <- length(arg.rhs$duals)
+  
+   symb <- c() 
+   for (i in c(1:numRows)) { 
+     symb[i] <- paste("B", i, sep = "" ) 
+   }
+   
+  rhs <- data.frame(rhs = symb,arg.rhs)
+  
+  rhs<-rhs %>%
+  mutate(dualsfrom=replace(dualsfrom, dualsfrom < -1000, "-inf")) %>%
+  mutate(dualstill=replace(dualstill, dualstill > 10000, "inf")) %>%
+    unite(col = "Sensitivity",  
+          dualsfrom, rhs, dualstill , 
+          sep = " <= ", remove = FALSE) %>%
+    select(c("rhs","Sensitivity"))
+  
+  colnames(rhs)[1]<-c('Rhs')
+  print(rhs)
+}
+```
+
+```{r}
+printSensitivityObj <- function(model){
+  options(scipen=999)
+  arg.obj = get.sensitivity.obj(model)
+  
+  numRows <- length(arg.obj$objfrom)
+   symb <- c() 
+   for (i in c(1:numRows)) { 
+     symb[i] <- paste("C", i, sep = "" ) 
+   }
+   
+  obj <- data.frame(Objs = symb, arg.obj)
+  
+  obj<-
+    obj %>%
+    mutate(objfrom=replace(objfrom, objfrom < -100, "-inf")) %>%
+    mutate(objtill=replace(objtill, objtill > 100, "inf")) %>%
+    unite(col = "Sensitivity",  
+          objfrom, Objs, objtill , 
+          sep = " <= ", remove = FALSE) %>%
+    select(c("Objs","Sensitivity"))
+    print(obj)
+}
+```
+
+Analizziamo come possano cambiare le conclusioni nel caso in cui ci sia una variazione dei profitti netti per unità, ovvero i nostri coefficienti della funzione obiettivo:
+
+```{r}
+printSensitivityObj(lp.model)
+```
+
+La base rimane la stessa se:
+
+$-inf <= C1 <= 2.293334$
+
+$-inf <= C2 <= 1.23569216$
+
+$0.9653845 <= C3 <= inf$
+
+$0.7723076 <= C4 <= inf$
+
+Quindi se anche solo uno dei coefficienti *Ci*, relativi alle variabili *Xi*, dovesse variare all'esterno di ciascun intervallo si dovrebbe procedere al ricalcolo della base ottimale.
+Procediamo ora, con la sensitivity analysis, valutando gli effetti di una possibile variazione della parte destra delle disequazioni dei vincoli.
+
+```{r}
+printSensitivityRHS(lp.model)
+```
+
+La soluzione trovata rimarrà ottimale se i valori di ciascun *Bi* rimmarà nei sopracitati intervalli, ogni *Bi* rappresenta il valore a destra nella disequazione di ciascun vincolo. **B1** si riferisce al primo vincolo di produzione, ovvero quello relativo alla quantità di noci macadamia presenti nel prodotto. **B2** si riferisce al secondo vincolo di produzione, relativo alla quantità di cioccolato. **B3**, **B4**, **B5** e **B6** si riferiscono ai vincoli di tempo di lavorazione delle macchine, rispettivamente quella di *Hulling*, *Roasting*, *Coating* e *Packaging*, mentre **B7**, **B8**, **B9** e **B10** si riferiscono ai vincoli relativi alle quantità minime e massime da produrre per ogni prodotto, rispettivamente *Whole*, *Cluster*, *Crunch* e **Roasted**.
+
+f. Is the solution degenerate?  
+
+
+```{r}
+solve.lpExtPtr(lp.model)
+```
+
+l'output della funzione è pari a zero, che ci dice che la soluzione ottimale è stata trovata. Se la soluzione fosse stata degenere l'output sarebbe dovuto essere pari a 4.
+
+g. Is the solution unique?  
+
+```{r}
+get.solutioncount(lp.model)
+```
+
+La soluzione risulta essere unica.
+
+h. If MNC wanted to decrease the production on any product, which one would you recommend and why?  
+
+```{r}
+get.sensitivity.rhs(lp.model)$duals
+```
+
+L'output della funzione riporta le variabili duali, una per ogni vincolo. Si ricordano di seguito l'elenco dei vincoli:
+
+1. Quantità di noci per ogni prodotto.
+2. Quantità di cioccolato per ogni prodotto
+3. Tempo di lavorazione macchinario **Hulling**
+4. Tempo di lavorazione macchinario **Roasting**
+5. Tempo di lavorazione macchinario **Coating**
+6. Tempo di lavorazione macchinario **Packaging**
+7. Quantità **Whole**
+8. Quantità **Cluster**
+9. Quantità **Crunch**
+10. Quantità **Roasted**
+
+Le variabili duali misuarano il miglioramento dovuto all'aumento di una risorsa. Quella con segno negativo fa riferimento alla quantità del prodotto **Cluster**. Se dovessi scegliere per quale prodotto decrescere la produzione, la mia scelta verterebbe quindi su **cluster**.
+
+i. If MNC wanted to increase the production of any product, which one would you recommend and why?   
+
+Utilizzando ancora l'output del punto precedente si può osservare che aumentare la quantità prodotta di **Roasted** presenta uno *shadow cost* maggiore (0.5526924). Pertanto aumenterei la produzione di tale prodotto.
+
+j. Which resources are preventing MNS from making more money? If they could acquire more of this resource how much should they acquire & how much should they be willing to pay to acquire it?
+
+Il problema presentava vincoli con i seguenti valori nel loro "*right-hand side*":
+
+```{r}
+get.constr.value(lp.model)
+```
+
+I valori effettivi di utilizzo delle risorse in presenza dell'ottimo risultano essere:
+
+```{r}
+get.constraints(lp.model)
+```
+
+La risorsa più utilizzata è il macchinario per il "packaging", il quale utilizza l'intero tempo disponibile (3600). Risulta quindi essere un fattore chiave al fine di generare maggior cash-in flow. Utilizziamo quindi la Sensitivity analysis, precedentemente svolta, per ottenere il tempo massimo di utilizzo di tale macchina.
+
+```{r}
+printSensitivityRHS(lp.model)
+```
+
+La variabile che fa riferimento alla macchina di packaging è **B6**, con un valore massimo di utilizzo pari a 3777.5 minuti. Quindi calcoliamo le ore aggiuntive di tale macchinario e il relativo costo aggiuntivo, moltiplicando le ore aggiuntive per lo *shadow cost* di tale macchinario, pari a 0.7723076:
+
+```{r}
+ore_aggiuntive <- 3777.5 - 3600
+ore_aggiuntive
+```
+
+```{r}
+costo_aggiuntivo <- ore_aggiuntive*0.7723076
+costo_aggiuntivo
+```
+
+k. How much should MNC be willing to pay to acquire more chocolate?
+
+In presenza di ottimo sono state prodotte le seguenti quantità dei quattro prodotti:
+
+```{r}
+get.variables(lp.model)
+```
+
+Il vincolo relativo alla quantità di cioccolato era:
+
+$0.4X1 + 0.6X2 + 0.8X3 <= 800$
+
+Sostituendo i valori delle quantità all'interno dell'equazione e otterremo la quantità di cioccolato utilizzata:
+
+```{r}
+0.4*1029 + 0.6*400 + 0.8*150
+```
+
+$771.6 < 800$  
+
+La quantità di cioccolato utilizzata per la produzione è inferiore al massimo utilizzabile, risulta pertanto inutile acquistare altro cioccolato.
+
+l. If the marketing department wanted to decrease the price of the Whole product by \$0.25, would the optimal solution change?
+
+La variazione del prezzo riguarda il prodotto **Whole**, ovvero del coefficiente *C1* pari a 1.930769. Diminuendo il prezzo di 0.25$ avremo:
+
+```{r}
+1.930769 - 0.25
+```
+
+La sensitivity analysis ci ha precedentemente fornito il seguente output:
+
+```{r}
+printSensitivityObj(lp.model)
+```
+
+Il nuovo valore di *C1*, pari a 1.680769, rientra nell'intervallo. La base rimane quindi la stessa, e le soluzioni di ottimo non vanno ricalcolate. Il profitto al netto dei costi fissi, risultante da una diminuzione di 0.25$ del prezzo del prodotto **Whole**, sarà:
+
+```{r}
+income2 <- (1.680769*1029 + 1.04*400 + 1.146667*150 + 1.325*200) - 2300
+income2
+```
+
+Il nuovo profitto risulta inferiore a quello precedente:
+
+```{r}
+income - income2
+```
+
+Attuando questa diminuzione di prezzo il profitto diminuirà di 257.25$.
