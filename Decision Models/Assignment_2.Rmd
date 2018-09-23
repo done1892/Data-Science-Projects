@@ -1,0 +1,202 @@
+---
+title: "Assignment 2: CART AND RANDOM FOREST"
+author: "Brinati Davide, matricola: 771458"
+date: "28 marzo 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+## Classificare la lettera B
+
+A tal fine verrà creata una nuova variabile chiamata **lsB**, di tipo binario (assumerà i valori "Yes" e "No"). Se la lettera B è presente nella colonna **Letter** il relativo valore di **lsB** in quella riga sarà Yes altrimenti No.
+Per questa operazione di data manipulation è stato utilizzato uno script in python:
+
+```{python}
+import pandas as pd
+import numpy as np
+df = pd.read_csv('D:/uni/DECISION MODELS/Assignment/Assignment2/Assignment2/Dataset/Letters.csv')
+df.head()
+df['lsB'] = ''
+for i in df.index:
+    if df['Letter'].iloc[i] == 'B':
+        df['lsB'].iloc[i] = 'Yes'
+    else:
+        df['lsB'].iloc[i] = 'No'
+df.to_csv('D:/uni/DECISION MODELS/Assignment/Assignment2/Assignment2/Dataset/Letters_lsB.csv')
+```
+
+Ora nel file Letters_lsB abbiamo tutto il nostro dataset con l'aggiunta della variabile binaria **lsB**, la quale diventerà la nostra variabile target.
+
+```{r}
+df <- read.csv('D:/uni/DECISION MODELS/Assignment/Assignment2/Assignment2/Dataset/Letters_lsB.csv')
+summary(df)
+```
+
+Procediamo con il caricamento delle librerie necessarie e con l'intero dataset verra ora diviso in train e test:
+
+```{r}
+library(MASS)
+library(plyr) 
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(caTools)
+library(caret)
+library(rattle)
+set.seed(100)
+spl= sample.split(df$lsB, SplitRatio = 0.5)
+traindf = subset(df, spl == TRUE)
+testdf = subset(df, spl == FALSE)
+```
+
+Un primo modello da utilizzare per questo problema di classificazione potrebbe essere la **Logistic Regression**, dato che la variabile target assume solo due valori: "Yes" e "No".
+Per il nostro caso di studio verra utilizzato come modello un albero CART per classificare quando una lettera e B oppure no.
+
+```{r}
+traindf$Letter = as.factor(traindf$Letter)
+LetterDFTree = rpart(formula = lsB ~ Xbox + Ybox + Width + Height + Onpix + Xbar + Ybar + X2bar + Y2bar + XYbar + X2Ybar + XY2bar + Xedge + XedgeYcor + Yedge + YedgeXcor, method = 'class', data = traindf, control = rpart.control(minbucket = 15))
+printcp(LetterDFTree)
+```
+
+Osserviamo come l'algoritmo ha categorizzato le variabili:
+
+```{r}
+LetterDFTree$variable.importance
+```
+
+Viene fornita ora una rappresentazione di tale albero:
+
+```{r}
+fancyRpartPlot(LetterDFTree, palettes=c("Greens", "Oranges"), sub = "Fancy rpart plot")
+```
+
+Verrà ora calcolata l'accuracy del modello:
+
+```{r}
+predictedLetter <- predict(LetterDFTree, df, type = 'class')
+confusionMatrix(predictedLetter, df$lsB)
+```
+
+L'accuracy di questo modello è pari a 0.9355. Si ricordi che il numero di minbucket, ovvero il minimo numero di osservazioni per ogni nodo terminale, è stato impostato su 15. Proveremo ora ad aumentare l'accuracy del modello modificando alcuni suoi parametri.
+
+## Miglioramento del modello
+
+Il train viene ora diviso in validation set e train set, vi applicheremo tre diversi valori della variabile minbuket, verra effettuato un confronto fra le diverse performace dei modelli e utilizzeremo quello che porta ad un'accuracy piu elevata.
+
+```{r}
+set.seed(100)
+spl = sample.split(traindf$lsB, SplitRatio = 0.5)
+LetterDFValidationTrain = subset(traindf, spl = TRUE)
+LetterDFValidationTest = subset(traindf, spl = FALSE)
+```
+
+Passiamo ora alla creazione di tre diversi alberi con diversi valori di minbucket, rispettivamente 10, 20 e 15:
+
+```{r}
+LetterDFTree1 = rpart(formula = lsB ~ Xbox + Ybox + Width + Height + Onpix + Xbar + Ybar + X2bar + Y2bar + XYbar + X2Ybar + XY2bar + Xedge + XedgeYcor + Yedge + YedgeXcor, method = 'class', data = LetterDFValidationTrain, control = rpart.control(minbucket = 10))
+LetterDFTree2 = rpart(formula = lsB ~ Xbox + Ybox + Width + Height + Onpix + Xbar + Ybar + X2bar + Y2bar + XYbar + X2Ybar + XY2bar + Xedge + XedgeYcor + Yedge + YedgeXcor, method = 'class', data = LetterDFValidationTrain, control = rpart.control(minbucket = 20))
+LetterDFTree3 = rpart(formula = lsB ~ Xbox + Ybox + Width + Height + Onpix + Xbar + Ybar + X2bar + Y2bar + XYbar + X2Ybar + XY2bar + Xedge + XedgeYcor + Yedge + YedgeXcor, method = 'class', data = LetterDFValidationTrain, control = rpart.control(minbucket = 15))
+```
+
+Infine applichiamo il modello sviluppato sul Validation set al test, e confrontiamo le diverse accuracy e i diversi valori delle confusion matrix:
+
+```{r}
+LetterDFPredict1 = predict(LetterDFTree1, newdata = LetterDFValidationTest, type = 'class')
+LetterDFPredict2 = predict(LetterDFTree2, newdata = LetterDFValidationTest, type = 'class')
+LetterDFPredict3 = predict(LetterDFTree3, newdata = LetterDFValidationTest, type = 'class')
+
+confusionMatrix(LetterDFPredict1, LetterDFValidationTest$lsB)
+```
+
+```{r}
+confusionMatrix(LetterDFPredict2, LetterDFValidationTest$lsB)
+```
+
+```{r}
+confusionMatrix(LetterDFPredict3, LetterDFValidationTest$lsB)
+```
+
+Il confronto fra i valori ottenuti dalla confusion matrix ci indica che il modello che ha raggiunto performance migliori in termini di accuracy sul validation test e il primo, il cui numero di minbucket è stato settato a 10. Procediamo ora con l'applicazione di tale modello al test:
+
+```{r}
+LetterDFPredictFinal = rpart(formula = lsB ~ Xbox + Ybox + Width + Height + Onpix + Xbar + Ybar + X2bar + Y2bar + XYbar + X2Ybar + XY2bar + Xedge + XedgeYcor + Yedge + YedgeXcor, method = 'class', data = traindf, control = rpart.control(minbucket = 10))
+LetterDFPredictTest = predict(LetterDFPredictFinal, newdata = testdf, type = 'class')
+confusionMatrix(LetterDFPredictTest, testdf$lsB)
+```
+
+L'algoritmo prodotto è in grado di riconoscere la lettera B con un'accuratezza del 93.97%
+
+## Random Forest
+
+Viene ora utilizzato l'algoritmo **Random Forest** per la classificazione della presenza o meno della lettera B. Si effettuera poi un confronto con il risultato raggiunto dall'albero di decisione.
+
+```{r}
+traindf$lsB = as.factor(traindf$lsB)
+testdf$lsB = as.factor(testdf$lsB)
+LetterRandomForest = randomForest(formula = lsB ~ Xbox + Ybox + Width + Height + Onpix + Xbar + Ybar + X2bar + Y2bar + XYbar + X2Ybar + XY2bar + Xedge + XedgeYcor + Yedge + YedgeXcor, data = traindf, ntree = 200, nodesize = 15)
+LetterRandomForest
+```
+
+```{r}
+confusionMatrix(LetterRandomForest$predicted, traindf$lsB)
+```
+
+Ora applichiamo il modello sviluppato partendo dal train al test:
+
+```{r}
+LetterDFPredictRandomForest = predict(LetterRandomForest, newdata = testdf)
+confusionMatrix(LetterDFPredictRandomForest, testdf$lsB)
+```
+
+L'accuracy arriva al 97.05%. Inoltre si possono notare anche ottimi risultati di precision (TP / (TP+FP)) che si attesta intorno al 96.93%. 
+Confrontando questo modello con il precedente risulta chiaro che Usando l'algoritmo random forest si raggiungono risultati migliori rispetto all'albero decisionale sia in termini di accuracy, ma anche di precision e di recall. Questo miglioramento era prevedibile, dato che l'algoritmo random forest è un miglioramento dell'albero decisionale: in ogni nodo è presente un albero, quindi la complessita, ma anche la capacita predittiva è maggiore.
+
+##Building more general predictor
+##Random forest applicato ad un multi-class problem
+
+Quasta sezione si occupa di classificare il valore della variabile **Letter**, che è categorica nominale. Ci troviamo dunque di fronte ad un multi-class classification problem, dove l'attributo target non è più binario. Procediamo col rimuovere l'attributo **lsB**:
+
+```{r}
+testdf = subset(testdf, select = -c(lsB))
+traindf = subset(traindf, select = -c(lsB))
+```
+
+Ora verra impostato il modello random forest avente come variabile target **Letter**:
+
+```{r}
+LetterRandomForest2 = randomForest(formula = Letter ~ Xbox + Ybox + Width + Height + Onpix + Xbar + Ybar + X2bar + Y2bar + XYbar + X2Ybar + XY2bar + Xedge + XedgeYcor + Yedge + YedgeXcor, data = traindf, ntree = 200, nodesize = 15)
+LetterRandomForest2
+```
+
+```{r}
+confusionMatrix(LetterRandomForest2$predicted, traindf$Letter)
+```
+
+Applichiamo ora il modello prodotto sul test:
+
+```{r}
+LetterDFPredictRandomForest2 = predict(LetterRandomForest2, newdata = testdf)
+confusionMatrix(LetterDFPredictRandomForest2, testdf$Letter)
+```
+
+Il valore di accuracy raggiunto dal modello risulta molto alto, quasi al 97%. Verra fatto comunque un ulteriore tentativo di aumentare l'accuracy, riducendo il numero di nodesize del a 5. Con questa impostazione facciamo in modo che all'interno di ogni nodo vi siano 5 osservazioni invece che 15. Sperando di evitare il possibile overfitting.
+
+```{r}
+LetterRandomForest3 = randomForest(formula = Letter ~ Xbox + Ybox + Width + Height + Onpix + Xbar + Ybar + X2bar + Y2bar + XYbar + X2Ybar + XY2bar + Xedge + XedgeYcor + Yedge + YedgeXcor, data = traindf, ntree = 200, nodesize = 5)
+LetterRandomForest3
+```
+
+```{r}
+LetterDFPredictRandomForest3 = predict(LetterRandomForest3, newdata = testdf)
+confusionMatrix(LetterDFPredictRandomForest3, testdf$Letter)
+```
+
+Riducendo da 10 a 5 il valore di nodesize del modello random forest, l'accuracy sul test è passata dal 96.79% al 97.75%, guadagnando quasi un punto percentuale.
