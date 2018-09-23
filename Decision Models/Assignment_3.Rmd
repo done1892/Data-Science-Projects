@@ -1,0 +1,100 @@
+---
+title: 'Asignment 3: VOIP Phones'
+author: "Brinati Davide"
+date: "11 aprile 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Il seguente Asignment ha l'obiettivo di determinare l'insieme delle scelte possibili per la società **DM Systems**, la quale si trova a dover decidere la quantità ottimale di **PAL chips** da acquistare, da un'azienda italiana: **IM CHIPS** oppure da una sudcoreana, la **KR Eletronics**
+
+
+## L'albero di decisione
+
+Verrà rappresentato un albero di decisione per questo problema:
+
+```{r echo=TRUE, message=FALSE}
+library(yaml)
+library(radiant)
+library(radiant.model)
+tree = yaml.load_file(input = 'D:/uni/DECISION MODELS/Assignment/Assignment3/risolto/tree.yaml')
+```
+
+```{r}
+result = dtree(yl = tree)
+plot(result, final = FALSE)
+```
+
+## Valore atteso
+
+In questa sezione verrà usato il criterio del valore atteso per determinare quale società scegliere, fra la **IM CHIPS** e la **KS Elettronics**, per la fornitura di **PAL chips**
+
+```{r}
+plot(result, final = TRUE)
+```
+
+Usando questo criterio, **DM System** dovrebbe acquistare l'intero stock di chip da **KR Elettronics**.
+
+##Sensitive Analysis
+
+```{r}
+sensitivity(
+  result, 
+  vars = "p_tassa 0.1 0.9 0.1;", 
+  decs = c("compra_da_IM", "compra_da_entrambi", "compra_da_KR"), 
+  custom = FALSE)
+```
+
+Analizziamo il grafico ottenuto come output: risulta quasi sempre preferibile comprare l'intero stock da **KR** (linea blu), ma al crescere della probabilità della tassa, si arriva a un certo punto (dopo 0.80) dopo il quale conviene comprare da **IM**, linea verde. Dal grafico possiamo notare che al variare della probabilità della tassa, il payoff relativo all'acquisto dell'intero stock da **IM** rimane costante. Comprare da entrambi risulta più profittevole che comprare da **IM** fino a che la probabilità della tassa non supera lo 0.40. Comprare da entrambi risulterà sempre meno profittevole piuttosto che comprare solo da **KR**.
+
+##Funzione di utilità e certo equivalente
+
+Per questa sezione terremo per buone tutte le informazioni e ipotesi fatte in precedenza, con l'aggiunta che alla **DM System** verrà associata una funzione di utilità esponenziale con una tolleranza al rischio di 750.000$. Stabiliremo quindi la migliore alternativa usando la funzione di utilità.
+
+```{r}
+funzUtilEsp = function(X, Y) {
+  risultato = (1 - exp(-X/Y))
+  return(risultato)
+}
+
+```
+
+```{r}
+risultati = c(1500000, 1250000, 1500000, 1750000, 2250000, 750000, 11250000, 1500000, 2250000)
+utilita = funzUtilEsp(risultati, 750000)
+solo_IM = utilita[1]
+compra_da_entrambi = utilita[2]*0.4 + 0.6*(utilita[3]*0.333 + utilita[4]*0.333 + utilita[5]*0.333)
+solo_KR = utilita[6]*0.4 + 0.6*(utilita[7]*0.333 + utilita[8]*0.333 + utilita[9]*0.333)
+c(solo_IM, compra_da_entrambi, solo_KR)
+```
+
+Confrontando i risultati raggiunti, risulta chiaro che utilizzando la funzione di utilità, con una tolleranza al rischio associata di 750.000$, la scelta migliore sarà quella di acquistare lo stock di chip da entrambi.
+
+##KR revises the offer
+
+Analizziamo come cambiano le scelte nel caso di revisione dell'offerta da parte di **KS**, e cerchiamo di prevedere la soluzione migliore utilizzando il criterio del valore atteso.
+
+```{r}
+tree2 = yaml.load_file(input = "D:/uni/DECISION MODELS/Assignment/Assignment3/risolto/tree2.yaml")
+result2 = dtree(yl = tree2)
+plot(result2, final = TRUE)
+```
+
+Osservando l'output, risulta chiaro che la prima scelta sarà quella di comprare tutto lo stock di chip da **KS**, infatti osservando i valori dentro i primi due cerchi, andando da sinistra verso destra, si nota che il cerchio associato a "compra solo da **KS**" risulta avere un costo più basso. Con l'imposizione della tassa le conclusioni cambiano: se l'aliquota di tale tassa si attesta sul 50% o sul 100%, la scelta migliore sarà ancora comprare solo da **KS**. Se l'aliquota della tassa sale al 200%, diverrà più vantaggioso cancellare l'ordine di fornitura da **KS** e comprare da **IM**, nonostante la clausola del 10% per cancellazione ordine e l'incremento del prezzo unitario per ogni chip.
+
+##Valore dell'informazione
+
+In questa sezione useremo le informazioni di cui siamo già in possesso e useremo il criterio del valore atteso per stabilire l'ammontare massimo che **DM** dovrebbe pagare per ottenere informazioni riguardanti l'introduzione o meno della tassa sulle importazioni, le quali possono essere ottenute prima del processo decisionale.
+
+```{r}
+tree3 = yaml.load_file(input = 'D:/uni/DECISION MODELS/Assignment/Assignment3/risolto/tree3.yaml')
+result3 = dtree(yl = tree3)
+plot(result3, final = TRUE)
+```
+
+L'ammontare massimo che **DM** dovrebbe pagare per l'informazione è 14906.50, ovvero la differenza fra il valore atteso in caso di perfetta informazione e il valore atteso in presenza di asimmetria informativa.
