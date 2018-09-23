@@ -1,0 +1,89 @@
+name: DM Systems
+variables:
+    num_chips: 500000
+    costo_chip_IM: -3
+    costo_chip_KR1: -2
+    costo_chip_KR2: -1.5
+    p_tassa: 0.6
+    p_no_tassa: 1 - p_tassa
+    p_aliquota: 0.3333
+    solo_IM: num_chips*costo_chip_IM
+    meta_no_tassa: (num_chips/2)*costo_chip_IM + (num_chips/2)*costo_chip_KR1
+    meta_tassa_50_no_canc: (num_chips/2)*costo_chip_IM + (num_chips/2)*costo_chip_KR1*1.5
+    meta_tassa_100_no_canc: (num_chips/2)*costo_chip_IM + (num_chips/2)*costo_chip_KR1*2
+    meta_tassa_200_no_canc: (num_chips/2)*costo_chip_IM + (num_chips/2)*costo_chip_KR1*3
+    solo_KR_no_tassa: num_chips*costo_chip_KR2
+    solo_KR_tassa_50_no_canc: num_chips*costo_chip_KR2*1.5
+    solo_KR_tassa_100_no_canc: num_chips*costo_chip_KR2*2
+    solo_KR_tassa_200_no_canc: num_chips*costo_chip_KR2*3
+    costo_IM_50: costo_chip_IM*1.15
+    costo_IM_100: costo_chip_IM*1.20
+    costo_IM_200: costo_chip_IM*1.25
+    disdetta: 0.1
+    meta_tassa_50_canc: (num_chips/2)*costo_chip_IM + (num_chips/2)*costo_IM_50 + (num_chips/2)*costo_chip_KR1*disdetta
+    meta_tassa_100_canc: (num_chips/2)*costo_chip_IM + (num_chips/2)*costo_IM_100 + (num_chips/2)*costo_chip_KR1*disdetta
+    meta_tassa_200_canc: (num_chips/2)*costo_chip_IM + (num_chips/2)*costo_IM_200 + (num_chips/2)*costo_chip_KR1*disdetta
+    solo_KR_tassa_50_canc: num_chips*costo_chip_KR2*disdetta + num_chips*costo_IM_50
+    solo_KR_tassa_100_canc: num_chips*costo_chip_KR2*disdetta + num_chips*costo_IM_100
+    solo_KR_tassa_200_canc: num_chips*costo_chip_KR2*disdetta + num_chips*costo_IM_200
+type: decision
+compra_da_IM:
+    payoff: solo_IM
+comppa_da_entrambi:
+    type: chance
+    no_tassa:
+        p: p_no_tassa
+        payoff: meta_no_tassa
+    tassa:
+        p: p_tassa
+        type: chance
+        tassa_50:
+            p: p_aliquota
+            type: decision
+            cancellato:
+                payoff: meta_tassa_50_canc
+            non_cancellato:
+                payoff: meta_tassa_50_no_canc
+        tassa_100:
+            p: p_aliquota
+            type: decision
+            cancellato:
+                payoff: meta_tassa_100_canc
+            non_cancellato:
+                payoff: meta_tassa_100_no_canc
+        tassa_200:
+            p: p_aliquota
+            type: decision
+            cancellato:
+                payoff: meta_tassa_200_canc
+            non_cancellato:
+                payoff: meta_tassa_200_no_canc
+comora_da_KR:
+    type: chance
+    no_tassa:
+        p: p_no_tassa
+        payoff: solo_KR_no_tassa
+    tassa:
+        p: p_tassa
+        type: chance
+        tassa_50:
+            p: p_aliquota
+            type: decision
+            cancellato:
+                payoff: solo_KR_tassa_50_canc
+            non_cancellato:
+                payoff: solo_KR_tassa_50_no_canc
+        tassa_100:
+            p: p_aliquota
+            type: decision
+            cancellato:
+                payoff: solo_KR_tassa_100_canc
+            non_cancellato:
+                payoff: solo_KR_tassa_100_no_canc
+        tassa_200:
+            p: p_aliquota
+            type: decision
+            cancellato:
+                payoff: solo_KR_tassa_200_canc
+            non_cancellato:
+                payoff: solo_KR_tassa_200_no_canc
