@@ -1,0 +1,100 @@
+default:
+    host: sandbox.hortonworks.com
+    kafka_port: 6667
+    kafka_topic: stream_tweets_crypto3
+    mongodb: twitter_database
+    mongocollection: tweets
+    hbasedb: crypto_quotations
+    hbasebatch: 1000
+    start_date: 2017-11-10
+    end_date: 2018-02-05
+twitter:
+        consumer_key: oTHTPB1C0wY1cUzyYYWxxZbGZ
+        consumer_secret: YA8fyorg3XnFjayu8oE886PoYwjPHA41TanrqJ4ahR4t9zCAyM
+        access_token: 931526765020962816-QqaxxJjplgvfjBcrOScuzGxAESQOflW
+        access_token_secret: CcBS0cXJ1UwnQubGQllJ7gMFNWaVLKk0LK72wNZqrVuQz
+        data_struct_s:
+            - user_name
+            - timestamp
+            - coin
+            - date
+            - time
+            - created_at
+            - text
+            - retweet
+            - hashtags
+            - language
+            - followers_count
+            - friends_count
+            - location
+        data_struct_h:
+            - user_name
+            - timestamp
+            - coin
+            - date
+            - time
+            - created_at
+            - text
+            - retweet
+            - hashtags
+        query:
+            BTC: bitcoin
+            ETH: ethereum
+#            LTC: litecoin
+            XRP: ripple
+#            ETC: ethereum classic
+#            STR: starcoin
+#            DASH: dash
+#            SC: siacoin
+#            XMR: monero
+#            XEM: nem
+
+        max_tweets: 0
+crypto_currencies:
+    period: 300
+    polo_url: https://poloniex.com/public?
+    command: command=returnChartData
+    parameters: "&currencyPair={}&start={}&end={}&period={}"
+    data_struct:
+        - default:
+            - "data: coin"
+            - "data: timestamp"
+            - "data: date"
+            - "data: time"
+            - "data: read_at"
+            - "data: high"
+            - "data: low"
+            - "data: open"
+            - "data: close"
+            - "data: volume"
+            - "data: quote_volume"
+            - "data: weighted_average"
+        - added:
+            - "usd: high_usd"
+            - "usd: low_usd"
+            - "usd: open_usd"
+            - "usd: close_usd"
+            - "usd: volume_usd"
+            - "usd: quote_volume_usd"
+            - "usd: weighted_average_usd"
+    coins:
+        - BTC
+        - ETH
+#        - LTC
+        - XRP
+#        - ETC
+#        - STR
+#        - DASH
+#        - SC
+#        - XMR
+#        - XEM
+    altcoins:
+        - ETH
+        - LTC
+        - XRP
+        - ETC
+        - STR
+        - DASH
+        - SC
+        - XMR
+        - XEM
