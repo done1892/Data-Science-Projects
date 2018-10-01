@@ -14,12 +14,12 @@ tale tweet. A tal fine ci siamo serviti della libreria tweepy, e per lo streamin
 relative informazioni ad un topic; il consumer accede al topic, reperisce i dati sui tweet e li storicizza in Mongodb. Viene effettuato anche un controllo sulla semantica del testo del tweet:
 esso deve contenere almeno una parola della lista query nel file config.yaml
 
--old_tweets.py
+- old_tweets.py
 Tramite questo codice accediamo ai dati relativi a tweet indietro nel tempo, tramite scraping. Modificando la finestra temporale e la parola chiave di ricerca nel file di configurazione, lo script andrà a
 cercare i tweet secondo tali richieste. Infine, sempre tramite pymongo, i tweet vengono scritti su Mongodb; il nome della collezione e del db vanno anch'essi definiti nel file di
 configurazione, che lo script andrà a leggere in fase di inizializzazione delle variabili.
 
--Crypto_currencies.py
+- Crypto_currencies.py
 Questo script ha il compito di reperire le crypto quotazioni e di storarle su HBase. Le quotazioni vengono catturate grazie alle API di POLONIEX, una piattaforma di scambio cryptovalute.
 Successivamente, tramite la libreria happybase, le quotazioni vengono storate su HBase, nella tabella crypto_quotations. Le righe vengono raggruppate in batch, prima di essere inviate e caricate
 su Hbase, in quanto si riduce il tempo di invio e scrittura su db.
