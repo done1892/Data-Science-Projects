@@ -9,10 +9,10 @@ default:
     start_date: 2017-11-10
     end_date: 2018-02-05
 twitter:
-        consumer_key: oTHTPB1C0wY1cUzyYYWxxZbGZ
-        consumer_secret: YA8fyorg3XnFjayu8oE886PoYwjPHA41TanrqJ4ahR4t9zCAyM
-        access_token: 931526765020962816-QqaxxJjplgvfjBcrOScuzGxAESQOflW
-        access_token_secret: CcBS0cXJ1UwnQubGQllJ7gMFNWaVLKk0LK72wNZqrVuQz
+        consumer_key: xxxxx
+        consumer_secret: xxxxx
+        access_token: xxxxx
+        access_token_secret: xxxxx
         data_struct_s:
             - user_name
             - timestamp
