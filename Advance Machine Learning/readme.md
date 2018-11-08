@@ -1,1 +1,1 @@
-Advance Machine Learning assignment and project 
+Advance Machine Learning assignments and project 
