@@ -1,3 +1,5 @@
+Questo progetto è stato svolto utilizzando l'architettura Hadoop.
+
 DESCRIZIONE CODICI:
 
 - config.yaml e utility.py
