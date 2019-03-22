@@ -2,7 +2,8 @@ PROGETTO (vedi cartella project):
 
 Il progetto prevede la creazione di classificatori in grado di inferire su segnali monodimensionali (suoni) e immagini. Infine è stata 
 effettuata una task di "image retrival".
-Per quanto riguarda la prima parte del progetto si sono prodotti dei classificatori neurali in grado di stabilire genere, etnia e lingua 
+
+Per quanto riguarda la prima parte del progetto sono stati prodotti dei classificatori neurali in grado di stabilire genere, etnia e lingua 
 parlata dall'utente di fronte alla webcam. Di seguito una cattura dell'output prodotto:
 
 ![alt text](https://github.com/done1892/Data-Science-Projects/blob/master/Digital%20Signal%20and%20Image%20Management/Project/Cattura1.PNG)
