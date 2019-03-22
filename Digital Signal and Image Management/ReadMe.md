@@ -9,7 +9,7 @@ parlata dall'utente di fronte alla webcam. Di seguito una cattura dell'output pr
 ![alt text](https://github.com/done1892/Data-Science-Projects/blob/master/Digital%20Signal%20and%20Image%20Management/Project/Cattura1.PNG)
 
 Per la task di image retrival, la rete neurale restituisce i nomi dei personaggi famosi e storici più somiglianti all'utente. A Tal fine 
-è stata sviluppata un'architettura che presenta 2 reti siamesi. Di seguito è possibile osservare la demo:
+è stata sviluppata un'architettura che presenta delle reti siamesi. Di seguito è possibile osservare la demo:
 
 ![alt text](https://github.com/done1892/Data-Science-Projects/blob/master/Digital%20Signal%20and%20Image%20Management/Project/Cattura2.PNG)
 
