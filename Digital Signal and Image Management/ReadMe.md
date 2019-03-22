@@ -16,7 +16,6 @@ Per la task di image retrival, la rete neurale restituisce i nomi dei personaggi
 
 
 ASSIGNMENTS:
-In questa cartella sono presenti gli assignment, il primo su "Image Stitching", il secondo su classificazione di immagini con SVM,
-applicando il metodo LBP, nel terzo si applica una classificazione di immagini, sempre con SVM, ma con estrazione di features tramite una 
-rete neurale preaddestrata. Il quarto assignment prevede classificazione di immagini con un'architettura neurale preaddestrata, nella parte 
-2 si prova a migliorare la performance di classificazione tramite fine-tuning.
+In questa cartella sono presenti gli assignment, il primo su "Image Stitching"; il secondo su classificazione di immagini con SVM,
+applicando precedentemente il metodo LBP; nel terzo si applica una classificazione di immagini, sempre con SVM, ma con estrazione di features tramite una rete neurale preaddestrata (InceptionV3) . Il quarto assignment prevede classificazione di immagini con un'architettura neurale preaddestrata (Xception). Nella parte 
+2 si prova a migliorare la performance di classificazione tramite ulteriori tecniche di fine-tuning.
