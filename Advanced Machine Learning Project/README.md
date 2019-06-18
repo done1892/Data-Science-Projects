@@ -6,7 +6,7 @@ Authors:
 - Alberto Raimondi - a.raimondi21@campus.unimib.it
 
 <p align="center">
-  <img width="600" height="200" src="https://github.com/done1892/Data-Science-Projects/blob/master/Advanced%20Machine%20Learning%20Project/pics/logo.png">
+  <img width="300" height="300" src="https://github.com/done1892/Data-Science-Projects/blob/master/Advanced%20Machine%20Learning%20Project/pics/logo.png">
 </p>
 
 # 
