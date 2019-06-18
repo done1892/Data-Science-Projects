@@ -5,6 +5,6 @@ Authors:
 - Davide Meloni - d.meloni5@campus.unimib.it
 - Alberto Raimondi - a.raimondi21@campus.unimib.it
 
-![alt text](https://github.com/done1892/Data-Science-Projects/blob/master/Digital%20Signal%20and%20Image%20Management/Project/Cattura1.PNG)
+![alt text](https://github.com/done1892/Data-Science-Projects/blob/master/Advanced%20Machine%20Learning%20Project/pics/logo.png)
 
 # 
