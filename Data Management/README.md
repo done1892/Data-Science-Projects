@@ -1,6 +1,6 @@
 # Data Management
 
-Questo progetto è stato svolto utilizzando l'architettura Hadoop.
+Questo progetto è stato svolto utilizzando l'architettura **Hadoop**.
 
 #
 
